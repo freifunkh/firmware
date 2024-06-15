@@ -8,5 +8,12 @@ pipeline {
         }
       }
     }
+    stage('Clone site') {
+      steps {
+        dir('gluon/site') {
+          checkout scmGit(branches: [[name: '*/master-wireguard']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/freifunkh/site.git']])
+        }
+      }
+    }
   }
 }
