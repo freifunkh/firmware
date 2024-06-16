@@ -15,5 +15,20 @@ pipeline {
         }
       }
     }
+    stage('Configure git') {
+      steps {
+        dir('gluon') {
+          sh 'git config user.email "jenkins@build.ffh.zone"'
+          sh 'git config user.name "jenkins"'
+        }
+      }
+    }
+    stage('Apply site patches') {
+      steps {
+        dir('gluon') {
+          sh 'git am site/patches/*'
+        }
+      }
+    }
   }
 }
