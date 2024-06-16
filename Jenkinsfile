@@ -30,5 +30,12 @@ pipeline {
         }
       }
     }
+    stage('Get other repos used by gluon') {
+      steps {
+        dir('gluon') {
+          sh 'make update'
+        }
+      }
+    }
   }
 }
