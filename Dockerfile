@@ -1,8 +1,9 @@
 FROM jenkins/agent:latest-bookworm-jdk17
 USER root
+### Start gluon
 
-ARG TARGETOS
-ARG TARGETARCH
+ARG TARGETOS=linux
+ARG TARGETARCH=amd64
 
 ARG DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -36,8 +37,12 @@ RUN mkdir /tmp/ec &&\
     mv bin/ec-${TARGETOS}-${TARGETARCH} /usr/local/bin/editorconfig-checker &&\
     rm -rf /tmp/ec
 
-RUN useradd -m -d /gluon -u 100 -g 100 -o gluon
-USER gluon
+#RUN useradd -m -d /gluon -u 100 -g 100 -o gluon
+#USER gluon
 
-VOLUME /gluon
-WORKDIR /gluon
+##VOLUME /gluon
+##WORKDIR /gluon
+
+### End gluon
+USER jenkins
+#ENTRYPOINT ["/usr/local/bin/jenkins-agent"]
