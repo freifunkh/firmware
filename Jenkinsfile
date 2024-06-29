@@ -1,4 +1,11 @@
 pipeline {
+  parameters {
+    string(
+      defaultValue: 'ALL',
+      name: 'GLUON_TARGET',
+      trim: true
+    )
+  }
   agent { label 'linux' }
   stages {
     stage('Clone gluon') {
@@ -34,6 +41,29 @@ pipeline {
       steps {
         dir('gluon') {
           sh 'make update'
+        }
+      }
+    }
+    stage('Trigger target builds') {
+      when {
+        expression {
+          return params.GLUON_TARGET == 'ALL'
+        }
+      }
+      steps {
+        dir('gluon') {
+          script {
+            def targets_string = sh(script: 'make list-targets', returnStdout: true)
+            def targets = targets_string.tokenize('\n')
+            targets.each { target_name ->
+              stage("Build ${target_name}") {
+                echo "${target_name}"
+                def built = build(job: "nightly-wireguard", wait: true, propagate: false, parameters: [
+                  string(name: 'GLUON_TARGET', value: "${target_name}")
+                ])
+              }
+            }
+          }
         }
       }
     }
