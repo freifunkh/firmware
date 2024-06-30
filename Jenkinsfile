@@ -58,7 +58,7 @@ pipeline {
             targets.each { target_name ->
               stage("Build ${target_name}") {
                 echo "${target_name}"
-                def built = build(job: "nightly-wireguard", wait: true, propagate: false, parameters: [
+                def built = build(job: "nightly-wireguard", wait: false, propagate: false, parameters: [
                   string(name: 'GLUON_TARGET', value: "${target_name}")
                 ])
               }
