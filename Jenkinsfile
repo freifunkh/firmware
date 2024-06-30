@@ -67,5 +67,17 @@ pipeline {
         }
       }
     }
+    stage('Build gluon target') {
+      when {
+        expression {
+          return params.GLUON_TARGET != 'ALL'
+        }
+      }
+      steps {
+        dir('gluon') {
+          sh "make -j1 V=s GLUON_TARGET=${params.GLUON_TARGET}"
+        }
+      }
+    }
   }
 }
