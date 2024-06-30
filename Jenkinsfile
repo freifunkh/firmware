@@ -80,7 +80,7 @@ pipeline {
       steps {
         dir('gluon') {
           script {
-            def nproc_str = sh "nproc"
+            def nproc_str = sh(script: 'nproc', returnStdout: true)
             def nproc = nproc_str as Integer
             def nproc_plus_one = nproc+1
             sh "make -j${nproc_plus_one} GLUON_TARGET=${params.GLUON_TARGET}"
