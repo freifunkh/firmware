@@ -56,14 +56,17 @@ pipeline {
             def targets_string = sh(script: 'make list-targets', returnStdout: true)
             def targets1 = targets_string.tokenize('\n')
             def targets = ['ath79-generic','ipq40xx-generic'] // override for testing purposes
+            def build_stages = [:]
+
             targets.each { target_name ->
-              stage("Build ${target_name}") {
+              build_stages[target_name] = stage("Build ${target_name}") {
                 echo "${target_name}"
-                def built = build(job: "nightly-wireguard", wait: false, propagate: false, parameters: [
+                def built = build(job: "nightly-wireguard", wait: true, propagate: false, parameters: [
                   string(name: 'GLUON_TARGET', value: "${target_name}")
                 ])
               }
             }
+            parallel build_stages
           }
         }
       }
