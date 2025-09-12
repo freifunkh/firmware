@@ -1,4 +1,4 @@
-FROM jenkins/agent:latest-bookworm-jdk17
+FROM jenkins/inbound-agent:latest-bookworm-jdk21
 USER root
 ### Start gluon
 
@@ -7,27 +7,32 @@ ARG TARGETARCH=amd64
 
 ARG DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    ca-certificates \
-    file \
-    git \
-    python3 \
-    python3-distutils \
     build-essential \
-    gawk \
-    unzip \
-    libncurses5-dev \
-    zlib1g-dev \
-    libssl-dev \
-    libelf-dev \
-    wget \
-    rsync \
-    time \
-    qemu-utils \
+    ca-certificates \
+    clang \
     ecdsautils \
-    lua-check \
-    shellcheck \
+    file \
+    gawk \
+    git \
+    libelf-dev \
+    libncurses5-dev \
     libnss-unknown \
+    libssl-dev \
+    llvm \
+    lua-check \
     openssh-client \
+    python3 \
+    python3-dev \
+    python3-pyelftools \
+    python3-setuptools \
+    qemu-utils \
+    rsync \
+    shellcheck \
+    swig \
+    time \
+    unzip \
+    wget \
+    zlib1g-dev \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
