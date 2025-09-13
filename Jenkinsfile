@@ -5,20 +5,36 @@ pipeline {
       name: 'GLUON_TARGET',
       trim: true
     )
+    string(
+      defaultValue: '*/main',
+      name: 'GLUON_COMMIT',
+      trim: true
+    )
+    string(
+      defaultValue: '*/master-wireguard',
+      name: 'SITE_COMMIT',
+      trim: true
+    )
   }
   agent { label 'linux' }
   stages {
     stage('Clone gluon') {
       steps {
         dir('gluon') {
-          checkout scmGit(branches: [[name: '*/main']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/freifunk-gluon/gluon.git']])
+          checkout scmGit(branches: [[name: params.GLUON_COMMIT]], extensions: [], userRemoteConfigs: [[url: 'https://github.com/freifunk-gluon/gluon.git']])
+          script {
+             env.gluon_commit = sh(script: 'git rev-parse HEAD', returnStdout: true)
+          }
         }
       }
     }
     stage('Clone site') {
       steps {
         dir('gluon/site') {
-          checkout scmGit(branches: [[name: '*/master-wireguard']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/freifunkh/site.git']])
+          checkout scmGit(branches: [[name: params.SITE_COMMIT]], extensions: [], userRemoteConfigs: [[url: 'https://github.com/freifunkh/site.git']])
+          script {
+             env.site_commit = sh(script: 'git rev-parse HEAD', returnStdout: true)
+          }
         }
       }
     }
@@ -63,7 +79,9 @@ pipeline {
                 stage("Build ${target_name}") {
                   echo "${target_name}"
                   def built = build(job: "nightly-wireguard", wait: true, propagate: false, parameters: [
-                    string(name: 'GLUON_TARGET', value: "${target_name}")
+                    string(name: 'GLUON_TARGET', value: "${target_name}"),
+                    string(name: 'GLUON_COMMIT', value: "${env.gluon_commit}"),
+                    string(name: 'SITE_COMMIT', value: "${env.site_commit}")
                   ])
                 }
               }
