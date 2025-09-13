@@ -60,6 +60,30 @@ pipeline {
         }
       }
     }
+    stage('Update OpenWrt signing keys') {
+      steps {
+        withCredentials([file(credentialsId: 'key-build', variable: 'FILE')]) {
+          dir('gluon/openwrt') {
+            sh 'cp $FILE key-build'
+          }
+        }
+        withCredentials([file(credentialsId: 'key-build.pub', variable: 'FILE')]) {
+          dir('gluon/openwrt') {
+            sh 'cp $FILE key-build.pub'
+          }
+        }
+        withCredentials([file(credentialsId: 'key-build.ucert', variable: 'FILE')]) {
+          dir('gluon/openwrt') {
+            sh 'cp $FILE key-build.ucert'
+          }
+        }
+        withCredentials([file(credentialsId: 'key-build.ucert.revoke', variable: 'FILE')]) {
+          dir('gluon/openwrt') {
+            sh 'cp $FILE key-build.ucert.revoke'
+          }
+        }
+      }
+    }
     stage('Trigger target builds') {
       when {
         expression {
