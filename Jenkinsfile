@@ -91,4 +91,10 @@ pipeline {
       }
     }
   }
+  post {
+    always {
+      archiveArtifacts artifacts: 'gluon/output/images/**/*', fingerprint: true
+      archiveArtifacts artifacts: 'gluon/output/meta/**/*', fingerprint: true
+    }
+  }
 }
