@@ -59,11 +59,13 @@ pipeline {
             def build_stages = [:]
 
             targets.each { target_name ->
-              build_stages[target_name] = stage("Build ${target_name}") {
-                echo "${target_name}"
-                def built = build(job: "nightly-wireguard", wait: true, propagate: false, parameters: [
-                  string(name: 'GLUON_TARGET', value: "${target_name}")
-                ])
+              build_stages[target_name] = {
+                stage("Build ${target_name}") {
+                  echo "${target_name}"
+                  def built = build(job: "nightly-wireguard", wait: true, propagate: false, parameters: [
+                    string(name: 'GLUON_TARGET', value: "${target_name}")
+                  ])
+                }
               }
             }
             parallel build_stages
