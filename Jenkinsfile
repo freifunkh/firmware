@@ -49,7 +49,7 @@ pipeline {
     stage('Apply site patches') {
       steps {
         dir('gluon') {
-          sh 'git am site/patches/*'
+          sh 'git am site/patches/* --committer-date-is-author-date'
         }
       }
     }
