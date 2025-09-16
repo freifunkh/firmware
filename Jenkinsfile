@@ -94,8 +94,7 @@ pipeline {
         dir('gluon') {
           script {
             def targets_string = sh(script: 'make list-targets', returnStdout: true)
-            def targets1 = targets_string.tokenize('\n')
-            def targets = ['ath79-generic','ipq40xx-generic'] // override for testing purposes
+            def targets = targets_string.tokenize('\n')
             def build_stages = [:]
 
             targets.each { target_name ->
