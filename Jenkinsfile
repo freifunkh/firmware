@@ -138,6 +138,46 @@ pipeline {
         if (params.GLUON_TARGET != 'ALL') {
           archiveArtifacts artifacts: 'gluon/output/images/**/*', fingerprint: true
           archiveArtifacts artifacts: 'gluon/output/meta/**/*', fingerprint: true
+          sshPublisher(
+            publishers: [
+              sshPublisherDesc(
+                configName: 'tonne.ffh.zone',
+                transfers: [
+                  sshTransfer(
+                    cleanRemote: false,
+                    excludes: '',
+                    execCommand: '',
+                    execTimeout: 120000,
+                    flatten: false,
+                    makeEmptyDirs: false,
+                    noDefaultExcludes: false,
+                    patternSeparator: '[, ]+',
+                    remoteDirectory: '',
+                    remoteDirectorySDF: false,
+                    removePrefix: 'gluon/output',
+                    sourceFiles: 'gluon/output/images/'
+                  ),
+                  sshTransfer(
+                    cleanRemote: false,
+                    excludes: '',
+                    execCommand: '',
+                    execTimeout: 120000,
+                    flatten: false,
+                    makeEmptyDirs: false,
+                    noDefaultExcludes: false,
+                    patternSeparator: '[, ]+',
+                    remoteDirectory: '',
+                    remoteDirectorySDF: false,
+                    removePrefix: 'gluon/output',
+                    sourceFiles: 'gluon/output/meta/'
+                  )
+                ],
+                usePromotionTimestamp: false,
+                useWorkspaceInPromotion: false,
+                verbose: false
+              )
+            ]
+          )
         }
       }
     }
