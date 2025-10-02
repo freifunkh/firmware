@@ -65,21 +65,25 @@ pipeline {
         withCredentials([file(credentialsId: 'key-build', variable: 'FILE')]) {
           dir('gluon/openwrt') {
             sh 'cp $FILE key-build'
+            sh 'echo "83d504c4d622555a7c5911abfe04575391d4132957d2c4d6da58cad6e01e60f9  key-build" | sha256sum -c'
           }
         }
         withCredentials([file(credentialsId: 'key-build.pub', variable: 'FILE')]) {
           dir('gluon/openwrt') {
             sh 'cp $FILE key-build.pub'
+            sh 'echo "f5acf9d95b0b77e96a81f17aba729aa57ff279c1393a1df3b9cce11dc0ccb10a  key-build.pub" | sha256sum -c'
           }
         }
         withCredentials([file(credentialsId: 'key-build.ucert', variable: 'FILE')]) {
           dir('gluon/openwrt') {
             sh 'cp $FILE key-build.ucert'
+            sh 'echo "fb9e5f1d8f056c28aa84fd925bbba5d5de7d021076d470dd993e084f1add6b0a  key-build.ucert" | sha256sum -c'
           }
         }
         withCredentials([file(credentialsId: 'key-build.ucert.revoke', variable: 'FILE')]) {
           dir('gluon/openwrt') {
             sh 'cp $FILE key-build.ucert.revoke'
+            sh 'echo "e2df2c116e3e91b64f5f2125a401cb44c65a6bb2d8f565a9d7cb59e7e6d5308c  key-build.ucert.revoke" | sha256sum -c'
           }
         }
       }
