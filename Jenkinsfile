@@ -62,16 +62,17 @@ pipeline {
     }
     stage('Update OpenWrt signing keys') {
       steps {
+        withCredentials([file(credentialsId: 'key-build.pub', variable: 'FILE')]) {
+          dir('gluon/openwrt') {
+            sh 'cp $FILE key-build.pub'
+            sh 'cat key-build.pub'
+            sh 'echo "f5acf9d95b0b77e96a81f17aba729aa57ff279c1393a1df3b9cce11dc0ccb10a  key-build.pub" | sha256sum -c'
+          }
+        }
         withCredentials([file(credentialsId: 'key-build', variable: 'FILE')]) {
           dir('gluon/openwrt') {
             sh 'cp $FILE key-build'
             sh 'echo "83d504c4d622555a7c5911abfe04575391d4132957d2c4d6da58cad6e01e60f9  key-build" | sha256sum -c'
-          }
-        }
-        withCredentials([file(credentialsId: 'key-build.pub', variable: 'FILE')]) {
-          dir('gluon/openwrt') {
-            sh 'cp $FILE key-build.pub'
-            sh 'echo "f5acf9d95b0b77e96a81f17aba729aa57ff279c1393a1df3b9cce11dc0ccb10a  key-build.pub" | sha256sum -c'
           }
         }
         withCredentials([file(credentialsId: 'key-build.ucert', variable: 'FILE')]) {
