@@ -139,50 +139,20 @@ pipeline {
   }
   post {
     always {
-      script {
-        if (params.GLUON_TARGET != 'ALL') {
-          archiveArtifacts artifacts: 'gluon/output/images/**/*', fingerprint: true
-          archiveArtifacts artifacts: 'gluon/output/meta/**/*', fingerprint: true
-          sshPublisher(
-            publishers: [
-              sshPublisherDesc(
-                configName: 'tonne.ffh.zone',
-                transfers: [
-                  sshTransfer(
-                    cleanRemote: false,
-                    excludes: '',
-                    execCommand: '',
-                    execTimeout: 120000,
-                    flatten: false,
-                    makeEmptyDirs: false,
-                    noDefaultExcludes: false,
-                    patternSeparator: '[, ]+',
-                    remoteDirectory: '',
-                    remoteDirectorySDF: false,
-                    removePrefix: 'gluon/output',
-                    sourceFiles: 'gluon/output/images/'
-                  ),
-                  sshTransfer(
-                    cleanRemote: false,
-                    excludes: '',
-                    execCommand: '',
-                    execTimeout: 120000,
-                    flatten: false,
-                    makeEmptyDirs: false,
-                    noDefaultExcludes: false,
-                    patternSeparator: '[, ]+',
-                    remoteDirectory: '',
-                    remoteDirectorySDF: false,
-                    removePrefix: 'gluon/output',
-                    sourceFiles: 'gluon/output/meta/'
-                  )
-                ],
-                usePromotionTimestamp: false,
-                useWorkspaceInPromotion: false,
-                verbose: false
-              )
-            ]
-          )
+      dir('gluon') {
+        dir('output') {
+          script {
+            if (params.GLUON_TARGET != 'ALL') {
+              archiveArtifacts artifacts: 'images/**/*', fingerprint: true
+              archiveArtifacts artifacts: 'meta/**/*', fingerprint: true
+              sshagent(credentials: ['tonne_ssh_access']) {
+                sh "mkdir -p ~/.ssh/"
+                sh "ssh-keyscan -p 1337 tonne.ffh.zone >> ~/.ssh/known_hosts"
+                sh "rsync -rva ./images/* tonne.ffh.zone:/media/firmware/jenkins/${NODE_NAME}-${BUILD_ID}/images/ -e 'ssh -p 1337' --mkpath"
+                sh "rsync -rva ./meta/* tonne.ffh.zone:/media/firmware/jenkins/${NODE_NAME}-${BUILD_ID}/meta/ -e 'ssh -p 1337' --mkpath"
+              }
+            }
+          }
         }
       }
     }
