@@ -143,8 +143,6 @@ pipeline {
         dir('output') {
           script {
             if (params.GLUON_TARGET != 'ALL') {
-              archiveArtifacts artifacts: 'images/**/*', fingerprint: true
-              archiveArtifacts artifacts: 'meta/**/*', fingerprint: true
               sshagent(credentials: ['tonne_ssh_access']) {
                 sh "mkdir -p ~/.ssh/"
                 sh "ssh-keyscan -p 1337 tonne.ffh.zone >> ~/.ssh/known_hosts"
