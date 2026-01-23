@@ -18,7 +18,8 @@ pipeline {
     string(
       defaultValue: '',
       name: 'MAIN_JOB_BUILD_IDENTIFIER',
-      trim: true
+      trim: true,
+      description: 'Do not set this parameter manually! It is used to identify builds triggered by the main job.'
     )
     booleanParam(
       defaultValue: false,
