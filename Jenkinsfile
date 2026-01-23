@@ -15,6 +15,16 @@ pipeline {
       name: 'SITE_COMMIT',
       trim: true
     )
+    string(
+      defaultValue: '',
+      name: 'MAIN_JOB_BUILD_IDENTIFIER',
+      trim: true
+    )
+    booleanParam(
+      defaultValue: false,
+      name: 'PUBLISH',
+      description: 'Publish built images to firmware.ffh.zone'
+    )
   }
   agent { label 'linux' }
   stages {
@@ -89,6 +99,8 @@ pipeline {
         }
       }
     }
+
+    // ------------------------ MAIN JOB LOGIC ------------------------
     stage('Trigger target builds') {
       when {
         expression {
@@ -101,6 +113,7 @@ pipeline {
             def targets_string = sh(script: 'make list-targets', returnStdout: true)
             def targets = targets_string.tokenize('\n')
             def build_stages = [:]
+            def main_job_build_identifier = UUID.randomUUID().toString()
 
             targets.each { target_name ->
               build_stages[target_name] = {
@@ -109,7 +122,9 @@ pipeline {
                   def built = build(job: "nightly-wireguard", wait: true, propagate: false, parameters: [
                     string(name: 'GLUON_TARGET', value: "${target_name}"),
                     string(name: 'GLUON_COMMIT', value: "${env.gluon_commit}"),
-                    string(name: 'SITE_COMMIT', value: "${env.site_commit}")
+                    string(name: 'SITE_COMMIT', value: "${env.site_commit}"),
+                    string(name: 'MAIN_JOB_BUILD_IDENTIFIER', value: "${main_job_build_identifier}"),
+                    booleanParam(name: 'PUBLISH', value: params.PUBLISH)
                   ])
                 }
               }
@@ -119,6 +134,9 @@ pipeline {
         }
       }
     }
+    // ----------------------/ MAIN JOB LOGIC END /----------------------
+
+    // --------------------- SINGLE TARGET JOB LOGIC ---------------------
     stage('Build gluon target') {
       when {
         expression {
@@ -136,18 +154,38 @@ pipeline {
         }
       }
     }
+    // -------------------/ SINGLE TARGET JOB LOGIC END /-------------------
+
   }
   post {
     always {
       dir('gluon') {
         dir('output') {
           script {
-            if (params.GLUON_TARGET != 'ALL') {
-              sshagent(credentials: ['tonne_ssh_access']) {
+            sshagent(credentials: ['tonne_ssh_access']) {
+              if (params.GLUON_TARGET == 'ALL') {
+                // ---------------------------- MAIN JOB -----------------------------
+
+                if (params.PUBLISH) {
+                  sh "ssh -p 1337 firmware.ffh.zone 'echo hey > /var/www/tmp-firmware-before-merge/${MAIN_JOB_BUILD_IDENTIFIER}/finished'"
+                }
+
+                // -------------------------/ MAIN JOB END /--------------------------
+              } else {
+
+                // ------------------------ SINGLE TARGET JOB ------------------------
+
                 sh "mkdir -p ~/.ssh/"
                 sh "ssh-keyscan -p 1337 tonne.ffh.zone >> ~/.ssh/known_hosts"
                 sh "rsync -rva ./images/* tonne.ffh.zone:/media/firmware/jenkins/${NODE_NAME}-${BUILD_ID}/images/ -e 'ssh -p 1337' --mkpath"
                 sh "rsync -rva ./meta/* tonne.ffh.zone:/media/firmware/jenkins/${NODE_NAME}-${BUILD_ID}/meta/ -e 'ssh -p 1337' --mkpath"
+
+                if (params.PUBLISH) {
+                  sh "ssh-keyscan -p 1337 firmware.ffh.zone >> ~/.ssh/known_hosts"
+                  sh "rsync -rva ./images/* firmware.ffh.zone:/var/www/tmp-firmware-before-merge/${MAIN_JOB_BUILD_IDENTIFIER}/${NODE_NAME}-${BUILD_ID}/images/ -e 'ssh -p 1337' --mkpath"
+                }
+
+                // ---------------------/ SINGLE TARGET JOB END /---------------------
               }
             }
           }
