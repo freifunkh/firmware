@@ -197,7 +197,14 @@ pipeline {
 
                 if (params.PUBLISH) {
                   sh "ssh-keyscan -p 1337 firmware.ffh.zone >> ~/.ssh/known_hosts"
-                  sh "rsync -rva ./images/* firmware.ffh.zone:/var/www/tmp-firmware-before-merge/${MAIN_JOB_BUILD_IDENTIFIER}/${NODE_NAME}-${BUILD_ID}/images/ -e 'ssh -p 1337' --mkpath"
+                  sh '''
+                  lftp -p 1337 -e "
+                    set sftp:auto-confirm yes;
+                    mkdir -p /var/www/tmp-firmware-before-merge/${MAIN_JOB_BUILD_IDENTIFIER}/${NODE_NAME}-${BUILD_ID}/images;
+                    mirror -R ./images /var/www/tmp-firmware-before-merge/${MAIN_JOB_BUILD_IDENTIFIER}/${NODE_NAME}-${BUILD_ID}/images;
+                    bye
+                  " sftp://firmware.ffh.zone
+                    '''
                 }
 
                 // ---------------------/ SINGLE TARGET JOB END /---------------------

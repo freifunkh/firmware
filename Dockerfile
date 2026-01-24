@@ -42,6 +42,8 @@ RUN mkdir /tmp/ec &&\
     mv bin/ec-${TARGETOS}-${TARGETARCH} /usr/local/bin/editorconfig-checker &&\
     rm -rf /tmp/ec
 
+RUN apt-get install lftp
+
 #RUN useradd -m -d /gluon -u 100 -g 100 -o gluon
 #USER gluon
 
