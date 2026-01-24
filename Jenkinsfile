@@ -26,6 +26,11 @@ pipeline {
       name: 'PUBLISH',
       description: 'Publish built images to firmware.ffh.zone'
     )
+    booleanParam(
+      defaultValue: false,
+      name: 'ONLY_TEST_PIPELINE',
+      description: 'Skip actual image build and only test the pipeline by generating some test files'
+    )
   }
   agent { label 'linux' }
   stages {
@@ -125,7 +130,8 @@ pipeline {
                     string(name: 'GLUON_COMMIT', value: "${env.gluon_commit}"),
                     string(name: 'SITE_COMMIT', value: "${env.site_commit}"),
                     string(name: 'MAIN_JOB_BUILD_IDENTIFIER', value: "${main_job_build_identifier}"),
-                    booleanParam(name: 'PUBLISH', value: params.PUBLISH)
+                    booleanParam(name: 'PUBLISH', value: params.PUBLISH),
+                    booleanParam(name: 'ONLY_TEST_PIPELINE', value: params.ONLY_TEST_PIPELINE)
                   ])
                 }
               }
@@ -150,7 +156,15 @@ pipeline {
             def nproc_str = sh(script: 'nproc', returnStdout: true)
             def nproc = nproc_str as Integer
             def nproc_plus_one = nproc+1
-            sh "make -j${nproc_plus_one} GLUON_TARGET=${params.GLUON_TARGET} || make -j1 V=s GLUON_TARGET=${params.GLUON_TARGET}"
+            if (params.ONLY_TEST_PIPELINE) {
+              sh "mkdir -p output/images/${params.GLUON_TARGET}/"
+              sh "echo 'This is a test file for target ${params.GLUON_TARGET}' > output/images/${params.GLUON_TARGET}/testfile.txt"
+              sh "mkdir -p output/meta/${params.GLUON_TARGET}/"
+              sh "echo 'This is a test meta file for target ${params.GLUON_TARGET}' > output/meta/${params.GLUON_TARGET}/testmeta.txt"
+              return
+            } else {
+              sh "make -j${nproc_plus_one} GLUON_TARGET=${params.GLUON_TARGET} || make -j1 V=s GLUON_TARGET=${params.GLUON_TARGET}"
+            }
           }
         }
       }
