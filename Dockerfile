@@ -33,8 +33,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     unzip \
     wget \
     zlib1g-dev \
+    lftp \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
+
 
 RUN mkdir /tmp/ec &&\
     wget -O /tmp/ec/ec-${TARGETOS}-${TARGETARCH}.tar.gz https://github.com/editorconfig-checker/editorconfig-checker/releases/download/2.7.0/ec-${TARGETOS}-${TARGETARCH}.tar.gz &&\
@@ -42,7 +44,6 @@ RUN mkdir /tmp/ec &&\
     mv bin/ec-${TARGETOS}-${TARGETARCH} /usr/local/bin/editorconfig-checker &&\
     rm -rf /tmp/ec
 
-RUN apt-get install lftp
 
 #RUN useradd -m -d /gluon -u 100 -g 100 -o gluon
 #USER gluon
