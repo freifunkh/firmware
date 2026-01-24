@@ -164,6 +164,7 @@ pipeline {
               return
             } else {
               sh "make -j${nproc_plus_one} GLUON_TARGET=${params.GLUON_TARGET} || make -j1 V=s GLUON_TARGET=${params.GLUON_TARGET}"
+              sh "make manifest"
             }
           }
         }
