@@ -34,7 +34,6 @@ pipeline {
     choice(
       name: 'GLUON_AUTOUPDATER_BRANCH',
       choices: ['master-wireguard', 'stable', 'master', 'next', 'stable-wireguard'],
-      defaultValue: 'master-wireguard',
       description: 'Branch of the gluon repository to use for building images'
     )
     string(
