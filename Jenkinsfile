@@ -232,8 +232,8 @@ pipeline {
                   sh '''
                   lftp -p 1337 sftp://firmware.ffh.zone -e "
                     set sftp:auto-confirm yes;
-                    mkdir -p /var/www/tmp-firmware-before-merge/${MAIN_JOB_BUILD_IDENTIFIER}/${NODE_NAME}-${BUILD_ID}/images;
-                    mirror -R ./images /var/www/tmp-firmware-before-merge/${MAIN_JOB_BUILD_IDENTIFIER}/${NODE_NAME}-${BUILD_ID}/images;
+                    mkdir -p /var/www/tmp-firmware-before-merge/${MAIN_JOB_BUILD_IDENTIFIER}/${NODE_NAME}-${BUILD_ID}-${GLUON_TARGET}/images;
+                    mirror -R ./images /var/www/tmp-firmware-before-merge/${MAIN_JOB_BUILD_IDENTIFIER}/${NODE_NAME}-${BUILD_ID}-${GLUON_TARGET}/images;
                     bye
                   "
                     '''r
