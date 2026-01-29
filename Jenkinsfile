@@ -44,7 +44,7 @@ pipeline {
     )
     booleanParam(
       name: 'BROKEN',
-      default: true,
+      defaultValue: true,
       description: 'Set this to true if you want to build targets that are marked as broken in the site configuration.'
     )
   }
