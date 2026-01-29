@@ -31,6 +31,23 @@ pipeline {
       name: 'ONLY_TEST_PIPELINE',
       description: 'Skip actual image build and only test the pipeline by generating some test files'
     )
+    choice(
+      name: 'GLUON_AUTOUPDATER_BRANCH',
+      choices: ['master-wireguard', 'stable', 'master', 'next', 'stable-wireguard'],
+      defaultValue: 'master-wireguard',
+      description: 'Branch of the gluon repository to use for building images'
+    )
+    string(
+      name: 'GLUON_RELEASE',
+      defaultValue: 'vH40~1',
+      trim: true,
+      description: 'Use something like vH40, ... for actual releases and vH40~1 ... for the first pre-release, vH40~2 for the second pre-release, ...'
+    )
+    booleanParam(
+      name: 'BROKEN',
+      default: true,
+      description: 'Set this to true if you want to build targets that are marked as broken in the site configuration.'
+    )
   }
   agent { label 'linux' }
   stages {
@@ -131,7 +148,10 @@ pipeline {
                     string(name: 'SITE_COMMIT', value: "${env.site_commit}"),
                     string(name: 'MAIN_JOB_BUILD_IDENTIFIER', value: "${main_job_build_identifier}"),
                     booleanParam(name: 'PUBLISH', value: params.PUBLISH),
-                    booleanParam(name: 'ONLY_TEST_PIPELINE', value: params.ONLY_TEST_PIPELINE)
+                    booleanParam(name: 'ONLY_TEST_PIPELINE', value: params.ONLY_TEST_PIPELINE),
+                    string(name: 'GLUON_AUTOUPDATER_BRANCH', value: params.GLUON_AUTOUPDATER_BRANCH),
+                    string(name: 'GLUON_RELEASE', value: params.GLUON_RELEASE),
+                    booleanParam(name: 'BROKEN', value: params.BROKEN)
                   ])
                 }
               }
@@ -156,6 +176,12 @@ pipeline {
             def nproc_str = sh(script: 'nproc', returnStdout: true)
             def nproc = nproc_str as Integer
             def nproc_plus_one = nproc+1
+            def extra_args = ''
+
+            if (params.BROKEN) {
+              extra_args = 'BROKEN=1 '
+            }
+
             if (params.ONLY_TEST_PIPELINE) {
               sh "mkdir -p output/images/${params.GLUON_TARGET}/"
               sh "echo 'This is a test file for target ${params.GLUON_TARGET}' > output/images/${params.GLUON_TARGET}/testfile.txt"
@@ -163,7 +189,7 @@ pipeline {
               sh "echo 'This is a test meta file for target ${params.GLUON_TARGET}' > output/meta/${params.GLUON_TARGET}/testmeta.txt"
               return
             } else {
-              sh "make -j${nproc_plus_one} GLUON_TARGET=${params.GLUON_TARGET} || make -j1 V=s GLUON_TARGET=${params.GLUON_TARGET}"
+              sh "make -j${nproc_plus_one} GLUON_AUTOUPDATER_ENABLED=1 GLUON_AUTOUPDATER_BRANCH=${params.GLUON_AUTOUPDATER_BRANCH} GLUON_RELEASE=${params.GLUON_RELEASE} GLUON_TARGET=${params.GLUON_TARGET} ${extra_args} || make -j1 V=s GLUON_TARGET=${params.GLUON_TARGET}"
               sh "make manifest"
             }
           }
@@ -205,7 +231,7 @@ pipeline {
                     mirror -R ./images /var/www/tmp-firmware-before-merge/${MAIN_JOB_BUILD_IDENTIFIER}/${NODE_NAME}-${BUILD_ID}/images;
                     bye
                   "
-                    '''
+                    '''r
                 }
 
                 // ---------------------/ SINGLE TARGET JOB END /---------------------
