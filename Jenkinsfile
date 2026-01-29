@@ -50,6 +50,12 @@ pipeline {
   }
   agent { label 'linux' }
   stages {
+    stage('Log time before build') {
+      steps {
+        sh 'echo Build started at:'
+        sh 'date'
+      }
+    }
     stage('Clone gluon') {
       steps {
         dir('gluon') {
@@ -236,6 +242,9 @@ pipeline {
                 // ---------------------/ SINGLE TARGET JOB END /---------------------
               }
             }
+
+            sh 'echo Build finished at:'
+            sh 'date'
           }
         }
       }
