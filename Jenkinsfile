@@ -33,8 +33,8 @@ pipeline {
     )
     choice(
       name: 'GLUON_AUTOUPDATER_BRANCH',
-      choices: ['master-wireguard', 'stable', 'master', 'next', 'stable-wireguard'],
-      description: 'Branch of the gluon repository to use for building images'
+      choices: ['wireguard', 'beta', 'experimental', 'nightly', 'nightly_wireguard', 'stable'],
+      description: 'This does not define under which branch this image is actually distributed. It defines which branch is set up for the autoupdater after this image has been flashed.'
     )
     string(
       name: 'GLUON_RELEASE',
