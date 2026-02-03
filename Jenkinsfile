@@ -38,7 +38,7 @@ pipeline {
     )
     string(
       name: 'GLUON_RELEASE',
-      defaultValue: 'vH40~1',
+      defaultValue: 'vH41~1',
       trim: true,
       description: 'Use something like vH40, ... for actual releases and vH40~1 ... for the first pre-release, vH40~2 for the second pre-release, ...'
     )
