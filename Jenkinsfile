@@ -228,11 +228,20 @@ pipeline {
                 sh "rsync -rva ./meta/* tonne.ffh.zone:/media/firmware/jenkins/${NODE_NAME}-${BUILD_ID}/meta/ -e 'ssh -p 1337' --mkpath"
 
                 if (params.PUBLISH) {
+                  sh '''
+                    set -eu
+
+                    echo "Lade vollständiges Jenkins-Konsolenlog von: ${BUILD_URL}consoleText"
+                    curl -fsS "${BUILD_URL}consoleText" -o jenkins-console.log
+                  '''
+
                   sh "ssh-keyscan -p 1337 firmware.ffh.zone >> ~/.ssh/known_hosts"
                   sh '''
                   lftp -p 1337 sftp://firmware.ffh.zone -e "
                     set sftp:auto-confirm yes;
                     mkdir -p /var/www/tmp-firmware-before-merge/${MAIN_JOB_BUILD_IDENTIFIER}/${NODE_NAME}-${BUILD_ID}-${GLUON_TARGET}/images;
+                    mkdir -p /var/www/tmp-firmware-before-merge/${MAIN_JOB_BUILD_IDENTIFIER}/${NODE_NAME}-${BUILD_ID}-${GLUON_TARGET}/logs;
+                    put jenkins-console.log -o /var/www/tmp-firmware-before-merge/${MAIN_JOB_BUILD_IDENTIFIER}/${NODE_NAME}-${BUILD_ID}-${GLUON_TARGET}/logs/jenkins-console.log;
                     mirror -R ./images /var/www/tmp-firmware-before-merge/${MAIN_JOB_BUILD_IDENTIFIER}/${NODE_NAME}-${BUILD_ID}-${GLUON_TARGET}/images;
                     bye
                   "
