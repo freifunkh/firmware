@@ -232,7 +232,7 @@ pipeline {
       dir('gluon') {
         dir('output') {
           script {
-            sshagent(credentials: ['tonne_ssh_access']) {
+            sshagent(credentials: ['storage_ssh_access']) {
               if (params.GLUON_TARGET == 'ALL') {
                 // ---------------------------- MAIN JOB -----------------------------
 
@@ -246,9 +246,9 @@ pipeline {
                 // ------------------------ SINGLE TARGET JOB ------------------------
 
                 sh "mkdir -p ~/.ssh/"
-                sh "ssh-keyscan -p 1337 tonne.ffh.zone >> ~/.ssh/known_hosts"
-                sh "rsync -rva ./images/* tonne.ffh.zone:/media/firmware/jenkins/${NODE_NAME}-${BUILD_ID}/images/ -e 'ssh -p 1337' --mkpath"
-                sh "rsync -rva ./meta/* tonne.ffh.zone:/media/firmware/jenkins/${NODE_NAME}-${BUILD_ID}/meta/ -e 'ssh -p 1337' --mkpath"
+                sh "ssh-keyscan -p 1337 storage-03.ffh.zone >> ~/.ssh/known_hosts"
+                sh "rsync -rva ./images/* storgae-03.ffh.zone:/media/firmware/jenkins/${NODE_NAME}-${BUILD_ID}/images/ -e 'ssh -p 1337' --mkpath"
+                sh "rsync -rva ./meta/* storage-03.ffh.zone:/media/firmware/jenkins/${NODE_NAME}-${BUILD_ID}/meta/ -e 'ssh -p 1337' --mkpath"
 
                 if (params.PUBLISH) {
                   sh "ssh-keyscan -p 1337 firmware.ffh.zone >> ~/.ssh/known_hosts"
